@@ -1,4 +1,3 @@
-const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -6,9 +5,10 @@ const dotenv = require('dotenv')
 const connectDB = require('./db/config')
 const userRoutes = require('./routes/userRoutes')
 const pollRoutes = require('./routes/pollRoute')
+const chatRoutes = require('./routes/chatRoute')
+const {app, server} = require('./socketIO/config')
 
 
-const app = express()
 dotenv.config()
 
 connectDB()
@@ -20,7 +20,8 @@ app.use(cookieParser());
 
 app.use('/api/user', userRoutes)
 app.use('/api/poll', pollRoutes)
+app.use('/api/chat', chatRoutes)
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log(`server is running on port ${process.env.PORT}`);
 })
