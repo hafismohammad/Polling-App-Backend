@@ -4,7 +4,7 @@ const {
   fetchUserById,
 } = require("../repositories/userRepository");
 const { generateAccessToken } = require("../utils/utils");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const signUp = async (data) => {
   try {
