@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 
 router.get('/',authMiddleware, chatController.findAllMessages)
 router.get('/notifications', authMiddleware, chatController.findAllNotifications)
+router.delete('/clearNotifications', authMiddleware, chatController.clearNotifications)
 
 
 

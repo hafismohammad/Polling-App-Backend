@@ -1,56 +1,57 @@
-const { pollData, allPolls, vote, poll, findAddDeletePoll } = require("../services/pollService");
+const {
+  createNewPoll,
+  getAllPollsService,
+  addVoteService,
+  deletePollService
 
-const createPoll = async (req, res) => {
+} = require("../services/pollService");
+
+const createPoll = async (req, res, next) => {
   try {
     const { question, options } = req.body;
     const userId = req.user;
-    
-    const poll = await pollData(question, options, userId);
-    res.status(200).json({ message: "Poll created successfully", poll });
+    const poll = await createNewPoll(question, options, userId);
+    res.status(201).json({ status: 'success', message: "Poll created successfully", data: poll });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ message: "Error while creating poll" });
+   next(error)
   }
 };
 
-const getAllPolls = async (req, res) => {
+const fetchPolls = async (req, res, next) => {
   try {
-    const polls = await allPolls();
-    res.status(200).json({ polls });
+    const polls = await getAllPollsService(); 
+    res.status(200).json({ status: 'success', data: polls });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ message: "Error while finding all polls" });
+   next(error)
   }
 };
 
-const addVote = async (req, res) => {
+const addVoteToPoll = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const { optionId } = req.body; 
-    const userId = req.user
-    await vote(id, optionId, userId);
-    res.status(200).json({ message: 'Vote added successfully' });
+    const { id } = req.params;
+    const { optionId } = req.body;
+    const userId = req.user;
+    await addVoteService(id, optionId, userId);
+    res.status(200).json({ status: 'success', message: "Vote added successfully" });
   } catch (error) {
-    if (error.message === "You have already voted on this poll") {
-      return res.status(403).json({ message: error.message });
-    }
-    res.status(400).json({ message: "Error while voting" });
+    const statusCode = error.statusCode || 500; 
+    res.status(statusCode).json({ message: error.message || "Internal Server Error" });
   }
 };
 
-const deletePoll = async (req, res) => {
+const deletePoll = async (req, res, next) => {
   try {
-    const {id} = req.params
-    await findAddDeletePoll(id)
-    res.status(200).json({message: 'Poll deleted successfully'})
+    const { id } = req.params;
+    await deletePollService(id);
+    res.status(200).json({ status: 'success', message: "Poll deleted successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Error while deleting poll" });
+    next(error)
   }
-}
+};
 
 module.exports = {
   createPoll,
-  getAllPolls,
-  addVote,
+  fetchPolls, 
+  addVoteToPoll,
   deletePoll
 };

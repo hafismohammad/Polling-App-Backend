@@ -3,14 +3,18 @@ const {
   fetchAllMessages,
   createNotification,
   fetchNotifications,
+  getUsersInGroup,
+  deleteAllNotifications,
 } = require("../repositories/chatRepository");
 
 const chatData = async (data) => {
   try {
     const chatData = await createChat(data);
-
+    const users = await getUsersInGroup();
     if (chatData) {
-      await createNotification(chatData);
+      for (const user of users) {
+        await createNotification(chatData, user);
+      }
     }
     return chatData;
   } catch (error) {
@@ -27,15 +31,27 @@ const messages = async () => {
 };
 
 const notifications = async () => {
-    try {
-        return await fetchNotifications()
-    } catch (error) {
-        console.log("Error while finding notifications", error);
+  try {
+    return await fetchNotifications();
+  } catch (error) {
+    console.log("Error while finding notifications", error);
+  }
+};
+
+const removeNotifications = async (userId) => {
+  try {
+    const users = await getUsersInGroup();
+    for (const user of users) {
+      await deleteAllNotifications(userId, user);
     }
-}
+  } catch (error) {
+    console.log("Error while clearing notifications:", error);
+  }
+};
 
 module.exports = {
   chatData,
   messages,
-  notifications
+  notifications,
+  removeNotifications,
 };

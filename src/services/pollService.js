@@ -1,59 +1,63 @@
-const {
-  createPoll,
-  getPolls,
-  addVote,
+const { 
+  createPollRepository,
+  fetchAllPollsFromDatabase,
+  addVoteToPollInDatabase,
   findPoll,
-  deletePoll,
+  deletePollByIdInDatabase
 } = require("../repositories/pollRepository");
 
-const pollData = async (question, options, userId) => {
+const createNewPoll = async (question, options, userId) => {
   try {
-    return await createPoll(question, options, userId);
+    if (!options || options.length < 2) {
+      throw new Error("Poll must have at least two options.");
+    }
+    return await createPollRepository(question, options, userId);
   } catch (error) {
-    console.log("Error during poll creation", error);
-    throw error;
+    throw new Error(`Error creating poll: ${error.message}`);
   }
 };
 
-const allPolls = async () => {
+const getAllPollsService   = async () => {
   try {
-    return await getPolls();
+    return await fetchAllPollsFromDatabase();
   } catch (error) {
-    console.log("Error during finding poll", error);
-    throw error;
+    throw new Error(`Error fetching polls: ${error.message}`);
   }
 };
 
-const vote = async (pollId, optionId, userId) => {
+const addVoteService  = async (pollId, optionId, userId) => {
   try {
     const poll = await findPoll(pollId);
     if (poll.voters.includes(userId)) {
-      console.log('You have already voted on this poll');
-      throw new Error("You have already voted on this poll"); 
+      throw { message: "You have already voted on this poll", statusCode: 400 };
     }
-    const option = poll.options.find(o => o._id.toString() === optionId);
-    if (option) {
-      return await addVote(pollId, optionId, userId);
-    } else {
+
+    const option = poll.options.find((o) => o._id.toString() === optionId);
+    if (!option) {
       throw new Error("Option not found");
     }
+
+    return await addVoteToPollInDatabase(pollId, optionId, userId);
   } catch (error) {
-    console.error("Error during voting", error);
-    throw error; 
+    throw new Error(`${error.message}`);
   }
 };
 
-const findAddDeletePoll = async (pollId) => {
+const deletePollService  = async (pollId) => {
   try {
-    return await deletePoll(pollId)
+    const poll = await findPoll(pollId);
+    if (!poll) {
+      throw new Error("Poll not found");
+    }
+    await deletePollByIdInDatabase(pollId);
   } catch (error) {
-    
+    throw new Error(`Error deleting poll: ${error.message}`);
   }
-}
+};
 
 module.exports = {
-  pollData,
-  allPolls,
-  vote,
-  findAddDeletePoll
+  createNewPoll,
+  getAllPollsService,
+  addVoteService,
+  deletePollService
 };

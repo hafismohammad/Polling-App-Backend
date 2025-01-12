@@ -1,56 +1,75 @@
-const { createUser, getuser, fetchUser } = require("../repositories/userRepository");
+const {
+  createUser,
+  getUserByEmail,
+  fetchUserById,
+} = require("../repositories/userRepository");
 const { generateAccessToken } = require("../utils/utils");
 const bcrypt = require("bcrypt");
 
 const signUp = async (data) => {
   try {
+    const existingUser = await getUserByEmail(data.email);
+    if (existingUser) {
+      console.log("User already exists");
+      throw { message: "Email already exists", statusCode: 400 };
+    }
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const userData = {
       ...data,
       password: hashedPassword,
     };
-    const accessToken = generateAccessToken(userData.id);
+
     const newUser = await createUser(userData);
-    return { newUser, accessToken };
+    const accessToken = generateAccessToken(newUser._id);
+    return { token: accessToken };
   } catch (error) {
-    console.log("Error during signup", error);
-    throw error;
+    if (error.message === "Email already exists") {
+      throw error;
+    }
+    console.error("Error during signup:", error);
+    throw new Error("Failed to create user");
   }
 };
 
 const login = async (data) => {
   try {
-    const user = await getuser(data);
+    const user = await getUserByEmail(data.email);
     if (!user) {
       throw new Error("Invalid email or password");
     }
+
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      l;
       throw new Error("Invalid email or password");
     }
-    const accessToken = generateAccessToken(user.id);
+
+    const accessToken = generateAccessToken(user._id);
     return accessToken;
   } catch (error) {
-    throw new Error(error.message);
+    console.error("Error during login:", error);
+    throw new Error("Login failed");
   }
 };
 
-const userData = async  (userId) => {
+const userData = async (userId) => {
   try {
-     const user = await fetchUser(userId)
-     const userData = {
-      id: user._id, 
-      name: user.name, 
+    const user = await fetchUserById(userId);
+    if (!user) throw new Error("User not found");
+
+    return {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
     };
-     return userData
   } catch (error) {
-    throw error;
+    console.error("Error fetching user data:", error);
+    throw new Error("Failed to retrieve user data");
   }
-}
+};
 
 module.exports = {
   signUp,
   login,
-  userData
+  userData,
 };

@@ -1,74 +1,75 @@
 const PollModel = require("../models/pollModel");
 
-const createPoll = async (question, options, userId) => {
+const createPollRepository  = async (question, options, userId) => {
   try {
     const poll = {
       userId: userId,
       question,
       options: options.map((option) => ({
         option,
-        votes: 0,
+        votes: 0
       })),
+      voters: []
     };
 
-    return (newPoll = await PollModel.create(poll));
+    return await PollModel.create(poll);
   } catch (error) {
-    throw error;
+    throw new Error(`Error creating poll in database: ${error.message}`);
   }
 };
 
-const getPolls = () => {
+const fetchAllPollsFromDatabase  = async () => {
   try {
-    return PollModel.find().sort({ createdAt: -1 });;
+    return await PollModel.find().sort({ createdAt: -1 });
   } catch (error) {
-    throw error;
+    throw new Error(`Error fetching polls from database: ${error.message}`);
   }
 };
 
 const findPoll = async (pollId) => {
   try {
-    return await PollModel.findById(pollId); 
+    return await PollModel.findById(pollId);
   } catch (error) {
-    console.error("Error while finding the poll", error);
-    throw error;
+    throw new Error(`Error finding poll with ID ${pollId}: ${error.message}`);
   }
 };
 
-const addVote = async (pollId,optionId,userId) => {
+const addVoteToPollInDatabase = async (pollId, optionId, userId) => {
   try {
     const result = await PollModel.findOneAndUpdate(
       { _id: pollId },
       {
         $inc: { "options.$[option].votes": 1 },
-        $push: { voters: userId }, 
+        $push: { voters: userId }
       },
       {
         arrayFilters: [{ "option._id": optionId }],
-        new: true, 
+        new: true
       }
     );
+
     if (!result) {
       throw new Error("Poll not found or update failed");
     }
+
     return result;
   } catch (error) {
-    console.error("Error while updating the poll", error);
-    throw error; 
+    throw new Error(`Error updating vote in database: ${error.message}`);
   }
-}
+};
 
-const deletePoll = async (pollId) => {
+const deletePollByIdInDatabase = async (pollId) => {
   try {
-    return await PollModel.findByIdAndDelete(pollId)
+    return await PollModel.findByIdAndDelete(pollId);
   } catch (error) {
-    
+    throw new Error(`Error deleting poll with ID ${pollId}: ${error.message}`);
   }
-}
+};
 
 module.exports = {
-  createPoll,
-  getPolls,
-  addVote,
+  createPollRepository,
+  fetchAllPollsFromDatabase,
+  addVoteToPollInDatabase,
   findPoll,
-  deletePoll
+  deletePollByIdInDatabase
 };

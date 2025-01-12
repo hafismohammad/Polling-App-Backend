@@ -1,6 +1,6 @@
 const ChatModel = require("../models/chatModel");
 const ChatNotification = require("../models/notificationModel");
-const UserModel = require("../models/userModel")
+const UserModel = require("../models/userModel");
 
 
 const createChat = async (data) => {
@@ -17,10 +17,21 @@ const createChat = async (data) => {
     }
   };
 
-  const createNotification = async (chatData) => {
+  const getUsersInGroup = async () => {
+    try {
+      return await UserModel.find()
+    } catch (error) {
+      console.error('Error while fetching users:', error);
+    }
+  }
+
+
+
+  const createNotification = async (chatData, user) => {
     try {
       return await ChatNotification.create({
         senderId: chatData.userId,
+        receiverId:user._id,
         message: chatData.message,
       })
     } catch (error) {
@@ -41,16 +52,55 @@ const createChat = async (data) => {
 
   const fetchNotifications = async () => {
     try {
-      return await ChatNotification.find()
+      const notifications = await ChatNotification.aggregate([
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'senderId', 
+            foreignField: '_id',
+            as: 'senderDetails',
+          },
+        },
+        {
+          $unwind: '$senderDetails', 
+        },
+        {
+          $sort: { createdAt: -1 },
+        },
+        {
+          $project: {
+            _id: 1, 
+            message: 1, 
+            createdAt: 1,
+            senderId:1,
+            receiverId: 1,
+            senderName: '$senderDetails.name',
+          },
+        },
+      ]);
+  
+      return notifications;
     } catch (error) {
-      console.error('Error while fetching notificatios:', error);
+      console.error('Error while fetching notifications:', error);
     }
-  }
+  };
+  
+  const deleteAllNotifications = async (userId, user) => {
+    try {
+      const data = await ChatNotification.deleteMany({ receiverId: userId });  
+      // console.log('Deleted notifications for user:', user.name); 
+      return data;
+    } catch (error) {
+      console.error('Error while deleting notifications:', error);
+    }
+  };
 
   
 module.exports = {
     createChat,
     fetchAllMessages,
     createNotification,
-    fetchNotifications
+    fetchNotifications,
+    getUsersInGroup,
+    deleteAllNotifications
 }

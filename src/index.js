@@ -6,6 +6,7 @@ const connectDB = require('./db/config')
 const userRoutes = require('./routes/userRoutes')
 const pollRoutes = require('./routes/pollRoute')
 const chatRoutes = require('./routes/chatRoute')
+const errorHandler  = require('./middleware/errorMiddleware')
 const {app, server} = require('./socketIO/config')
 
 
@@ -17,6 +18,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(errorHandler);
 
 app.use('/api/user', userRoutes)
 app.use('/api/poll', pollRoutes)

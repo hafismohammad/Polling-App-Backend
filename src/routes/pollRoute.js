@@ -3,8 +3,8 @@ const pollController = require('../controllers/pollController')
 const authMiddleware = require('../middleware/authMiddleware')
 
 router.post('/',authMiddleware, pollController.createPoll)
-router.get('/', authMiddleware, pollController.getAllPolls)
-router.post('/:id', authMiddleware, pollController.addVote)
+router.get('/', authMiddleware, pollController.fetchPolls)
+router.post('/:id', authMiddleware, pollController.addVoteToPoll)
 router.delete('/:id', authMiddleware, pollController.deletePoll)
 
 

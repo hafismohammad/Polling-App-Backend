@@ -1,28 +1,39 @@
-const { messages, notifications } = require("../services/chatService");
+const {
+  messages,
+  notifications,
+  removeNotifications,
+} = require("../services/chatService");
 
+const findAllMessages = async (req, res, next) => {
+  try {
+    const allmessages = await messages();
+    res.status(200).json({ allmessages });
+  } catch (error) {
+   next(error)
+  }
+};
 
+const findAllNotifications = async (req, res, next) => {
+  try {
+    const AllNotificaitons = await notifications();
+    res.status(200).json({ AllNotificaitons });
+  } catch (error) {
+    next(error)
+  }
+};
 
-const findAllMessages = async (req, res) => {
-    try {
-        const allmessages = await messages()
-        res.status(200).json({allmessages})
-    } catch (error) {
-        console.log('Error while finding chat', error);
-    }
-}
-
-const findAllNotifications = async (req, res) => {
-    try {
-        const AllNotificaitons = await notifications()
-        console.log('AllNotificaitons' , AllNotificaitons);
-        
-        res.status(200).json({AllNotificaitons})
-    } catch (error) {
-        console.log('Error while finding notifications', error);
-    }
-}
+const clearNotifications = async (req, res, next) => {
+  try {
+    const userId = req.user;
+    await removeNotifications(userId);
+    res.status(200).json({ message: "Notifications cleared successfully" });
+  } catch (error) {
+    next(error)
+  }
+};
 
 module.exports = {
-    findAllMessages ,
-    findAllNotifications
-}
+  findAllMessages,
+  findAllNotifications,
+  clearNotifications,
+};
