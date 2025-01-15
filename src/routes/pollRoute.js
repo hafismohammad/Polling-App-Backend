@@ -6,6 +6,7 @@ router.post('/',authMiddleware, pollController.createPoll)
 router.get('/', authMiddleware, pollController.fetchPolls)
 router.post('/:id', authMiddleware, pollController.addVoteToPoll)
 router.delete('/:id', authMiddleware, pollController.deletePoll)
+router.put('/:id', authMiddleware, pollController.updateVote)
 
 
 module.exports = router

@@ -2,7 +2,8 @@ const {
   createNewPoll,
   getAllPollsService,
   addVoteService,
-  deletePollService
+  deletePollService,
+  removeVote
 
 } = require("../services/pollService");
 
@@ -49,9 +50,21 @@ const deletePoll = async (req, res, next) => {
   }
 };
 
+const updateVote = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user; 
+    await removeVote(id, userId);
+    res.status(200).json({ status: "success", message: "Vote removed successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPoll,
   fetchPolls, 
   addVoteToPoll,
-  deletePoll
+  deletePoll,
+  updateVote
 };

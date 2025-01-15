@@ -36,7 +36,13 @@ io.on("connection", (socket) => {
   socket.on("addVote", (pollData) => {
     socket.broadcast.emit("voteUpdated", pollData);
   });
-
+  socket.on("removeVote", (pollData) => {
+    socket.broadcast.emit("voteRemoved", pollData);
+  });
+  socket.on("removeVote", (pollData) => {
+    socket.emit("voteRemoved", pollData);
+  });
+  
   socket.on("typing", (data) => {
     console.log("typing", data);
 

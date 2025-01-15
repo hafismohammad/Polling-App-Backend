@@ -1,15 +1,15 @@
 const PollModel = require("../models/pollModel");
 
-const createPollRepository  = async (question, options, userId) => {
+const createPollRepository = async (question, options, userId) => {
   try {
     const poll = {
       userId: userId,
       question,
       options: options.map((option) => ({
         option,
-        votes: 0
+        votes: 0,
       })),
-      voters: []
+      votedUsers: [],
     };
 
     return await PollModel.create(poll);
@@ -18,7 +18,7 @@ const createPollRepository  = async (question, options, userId) => {
   }
 };
 
-const fetchAllPollsFromDatabase  = async () => {
+const fetchAllPollsFromDatabase = async () => {
   try {
     return await PollModel.find().sort({ createdAt: -1 });
   } catch (error) {
@@ -36,15 +36,17 @@ const findPoll = async (pollId) => {
 
 const addVoteToPollInDatabase = async (pollId, optionId, userId) => {
   try {
+    console.log("hit controller", { pollId, optionId, userId });
+
     const result = await PollModel.findOneAndUpdate(
       { _id: pollId },
       {
-        $inc: { "options.$[option].votes": 1 },
-        $push: { voters: userId }
+        $inc: { "options.$[option].votes": 1 }, 
+        $push: { votedUsers: { userId: userId, optionId: optionId } },
       },
       {
-        arrayFilters: [{ "option._id": optionId }],
-        new: true
+        arrayFilters: [{ "option._id": optionId }], 
+        new: true,
       }
     );
 
@@ -60,9 +62,33 @@ const addVoteToPollInDatabase = async (pollId, optionId, userId) => {
 
 const deletePollByIdInDatabase = async (pollId) => {
   try {
-    return await PollModel.findByIdAndDelete(pollId);
+    await PollModel.findOneAndDelete(pollId);
   } catch (error) {
     throw new Error(`Error deleting poll with ID ${pollId}: ${error.message}`);
+  }
+};
+
+const updateAllVote = async (pollId, userId, optionId) => {
+  try {
+    const response = await PollModel.updateOne(
+      { _id: pollId },
+      {
+        $inc: { "options.$[option].votes": -1 },
+        $pull: { votedUsers: { userId, optionId } },
+      },
+      {
+        arrayFilters: [{ "option._id": optionId }],
+        new: true,
+      }
+    );
+
+    if (response.modifiedCount > 0) {
+      console.log("Vote removed successfully");
+    } else {
+      console.log("No votes were updated");
+    }
+  } catch (error) {
+    throw new Error(`Error updating specific vote: ${error.message}`);
   }
 };
 
@@ -71,5 +97,6 @@ module.exports = {
   fetchAllPollsFromDatabase,
   addVoteToPollInDatabase,
   findPoll,
-  deletePollByIdInDatabase
+  deletePollByIdInDatabase,
+  updateAllVote,
 };
