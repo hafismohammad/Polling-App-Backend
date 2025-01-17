@@ -20,7 +20,7 @@ const createNewPoll = async (question, options, userId) => {
 
 const getAllPollsService   = async () => {
   try {
-    return await fetchAllPollsFromDatabase();
+    return await fetchAllPollsFromDatabase()
   } catch (error) {
     throw new Error(`Error fetching polls: ${error.message}`);
   }
@@ -28,10 +28,8 @@ const getAllPollsService   = async () => {
 
 const addVoteService = async (pollId, optionId, userId) => {
   try {
-    // Find the poll
     const poll = await findPoll(pollId);
 
-    // Check if the user has already voted
     const hasVoted = poll.votedUsers.some(vote => vote.userId.toString() === userId.toString());
     if (hasVoted) {
       console.log({userId});
@@ -39,13 +37,11 @@ const addVoteService = async (pollId, optionId, userId) => {
       throw { message: "You have already voted on this poll", statusCode: 400 };
     }
 
-    // Find the option the user voted for
     const option = poll.options.find((o) => o._id.toString() === optionId);
     if (!option) {
       throw new Error("Option not found");
     }
 
-    // Add the vote to the poll in the database
     return await addVoteToPollInDatabase(pollId, optionId, userId);
   } catch (error) {
     throw new Error(`${error.message}`);

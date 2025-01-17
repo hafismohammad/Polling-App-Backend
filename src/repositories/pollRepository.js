@@ -20,7 +20,7 @@ const createPollRepository = async (question, options, userId) => {
 
 const fetchAllPollsFromDatabase = async () => {
   try {
-    return await PollModel.find().sort({ createdAt: -1 });
+    return await PollModel.find().sort({ createdAt: -1 }).populate('userId')
   } catch (error) {
     throw new Error(`Error fetching polls from database: ${error.message}`);
   }
