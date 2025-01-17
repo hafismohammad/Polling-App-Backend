@@ -8,14 +8,14 @@ const pollRoutes = require('./routes/pollRoute')
 const chatRoutes = require('./routes/chatRoute')
 const errorHandler  = require('./middleware/errorMiddleware')
 const {app, server} = require('./socketIO/config')
-const dotenv = require('dotenv')
+
 
 
 dotenv.config()
 console.log('process.env.CORS_ORGIN',process.env.CORS_ORGIN)
 connectDB()
 const corsOptions = {
-    origin: 'polling-app-frontend-plum.vercel.app',
+    origin: process.env.CORS_ORGIN,
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
