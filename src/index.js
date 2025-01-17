@@ -12,17 +12,17 @@ const dotenv = require('dotenv')
 
 
 dotenv.config()
-
+console.log('process.env.CORS_ORGIN',process.env.CORS_ORGIN)
 connectDB()
 const corsOptions = {
-    origin: process.env.CORS_ORGIN,
+    origin: 'polling-app-frontend-plum.vercel.app',
     credentials: true, 
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// app.options('*', cors(corsOptions));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
