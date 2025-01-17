@@ -8,13 +8,19 @@ const pollRoutes = require('./routes/pollRoute')
 const chatRoutes = require('./routes/chatRoute')
 const errorHandler  = require('./middleware/errorMiddleware')
 const {app, server} = require('./socketIO/config')
+const dotenv = require('dotenv')
 
 
 dotenv.config()
 
 connectDB()
+const corsOptions = {
+    origin: process.env.CORS_ORGIN,
+    credentials: true, 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+};
 
-app.use(cors())
+app.use(cors(corsOptions));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
