@@ -1,3 +1,4 @@
+const PollModel = require("../models/pollModel");
 const UserModel = require("../models/userModel");
 
 const createUser = async (data) => {
@@ -27,8 +28,17 @@ const fetchUserById = async (userId) => {
   }
 };
 
+const fetchAllVoters = async () => {
+  try {
+    return await PollModel.find()
+  } catch (error) {
+    throw new Error('Failed to fetch voter')
+  }
+}
+
 module.exports = {
   createUser,
   getUserByEmail,
   fetchUserById,
+  fetchAllVoters
 };

@@ -1,5 +1,5 @@
 const PollModel = require("../models/pollModel");
-
+const mongoose = require("mongoose");
 const createPollRepository = async (question, options, userId) => {
   try {
     const poll = {
@@ -90,7 +90,41 @@ const updateAllVote = async (pollId, userId, optionId) => {
   } catch (error) {
     throw new Error(`Error updating specific vote: ${error.message}`);
   }
+  
 };
+
+const getVotedUsers = async (pollId) => {
+  try {
+    const objectId = new mongoose.Types.ObjectId(pollId); // Ensure it's an ObjectId
+
+    const response = await PollModel.aggregate([
+      { $match: { _id: objectId } }, // Ensure proper type match
+      { $unwind: "$votedUsers" },
+      {
+        $lookup: {
+          from: "users", // Ensure the collection name matches your database
+          localField: "votedUsers.userId",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: 0,
+          name: "$userDetails.name",
+          userId: "$votedUsers.userId",
+          optionId: "$votedUsers.optionId"
+        }
+      }
+    ]);
+
+    return response;
+  } catch (error) {
+    throw new Error(`Error fetching voted users: ${error.message}`);
+  }
+};
+
 
 module.exports = {
   createPollRepository,
@@ -99,4 +133,5 @@ module.exports = {
   findPoll,
   deletePollByIdInDatabase,
   updateAllVote,
+  getVotedUsers
 };

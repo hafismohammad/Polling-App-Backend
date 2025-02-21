@@ -4,7 +4,8 @@ const {
   addVoteToPollInDatabase,
   findPoll,
   deletePollByIdInDatabase,
-  updateAllVote
+  updateAllVote,
+  getVotedUsers
 } = require("../repositories/pollRepository");
 
 const createNewPoll = async (question, options, userId) => {
@@ -77,6 +78,16 @@ const removeVote = async (pollId, userId) => {
   } catch (error) {
     throw new Error(`Error updating poll: ${error.message}`);
   }
+
+
+}
+const getVotedUserData = async (pollId) => {
+  try {
+
+    return await getVotedUsers(pollId);
+  } catch (error) {
+    throw new Error(`Error updating poll: ${error.message}`);
+  }
 };
 
 module.exports = {
@@ -84,5 +95,6 @@ module.exports = {
   getAllPollsService,
   addVoteService,
   deletePollService,
-  removeVote
+  removeVote,
+  getVotedUserData
 };

@@ -3,8 +3,8 @@ const {
   getAllPollsService,
   addVoteService,
   deletePollService,
-  removeVote
-
+  removeVote,
+  getVotedUserData
 } = require("../services/pollService");
 
 const createPoll = async (req, res, next) => {
@@ -61,10 +61,22 @@ const updateVote = async (req, res, next) => {
   }
 };
 
+const votedUserList = async (req, res, next) => {
+  try {
+    const { poll_id } = req.params;
+ 
+    const response = await getVotedUserData(poll_id);
+    res.status(200).json({ votedUsers :response });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createPoll,
   fetchPolls, 
   addVoteToPoll,
   deletePoll,
-  updateVote
+  updateVote,
+  votedUserList
 };

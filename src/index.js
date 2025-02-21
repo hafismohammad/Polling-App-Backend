@@ -12,7 +12,7 @@ const {app, server} = require('./socketIO/config')
 
 
 dotenv.config()
-console.log('process.env.CORS_ORGIN',process.env.CORS_ORGIN)
+// console.log('process.env.CORS_ORGIN',process.env.CORS_ORGIN)
 connectDB()
 const corsOptions = {
     origin: process.env.CORS_ORGIN,

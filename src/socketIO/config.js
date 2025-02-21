@@ -12,7 +12,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORGIN,
+    origin: [process.env.CORS_ORGIN || 'http://localhost:5173'],
     credentials: true,
   },
 });
@@ -34,12 +34,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on("addVote", (pollData) => {
+    // console.log('addVote',pollData);
+    
     socket.broadcast.emit("voteUpdated", pollData);
   });
+  // socket.on("removeVote", (pollData) => {
+  //   console.log('removeVote----------', pollData)
+  //   socket.broadcast.emit("voteRemoved", pollData);
+  // });
   socket.on("removeVote", (pollData) => {
-    socket.broadcast.emit("voteRemoved", pollData);
-  });
-  socket.on("removeVote", (pollData) => {
+    // console.log('0000000000000')
+    console.log('removeVote----------', pollData)
+
     socket.emit("voteRemoved", pollData);
   });
   
