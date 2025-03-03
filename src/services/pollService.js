@@ -54,6 +54,8 @@ const deletePollService  = async (pollId, userId) => {
     console.log('hit service', {pollId, userId});
     
     const poll = await findPoll(pollId);
+    console.log('poll:', poll);
+    
     if (!poll) {
       throw new Error("Poll not found");
     }

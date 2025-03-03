@@ -28,7 +28,9 @@ const fetchAllPollsFromDatabase = async () => {
 
 const findPoll = async (pollId) => {
   try {
-    return await PollModel.findById(pollId);
+    console.log('pollid', pollId);
+    
+    return new mongoose.Types.ObjectId(pollId);
   } catch (error) {
     throw new Error(`Error finding poll with ID ${pollId}: ${error.message}`);
   }
