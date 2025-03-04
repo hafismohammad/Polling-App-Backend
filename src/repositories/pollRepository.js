@@ -18,13 +18,44 @@ const createPollRepository = async (question, options, userId) => {
   }
 };
 
+// const fetchAllPollsFromDatabase = async () => {
+//   try {
+//     return await PollModel.find().sort({ createdAt: -1 }).populate('userId')
+//   } catch (error) {
+//     throw new Error(`Error fetching polls from database: ${error.message}`);
+//   }
+// };
+
 const fetchAllPollsFromDatabase = async () => {
   try {
-    return await PollModel.find().sort({ createdAt: -1 }).populate('userId')
+    return await PollModel.aggregate([
+      {
+        $sort: { createdAt: -1 }
+      },
+      {
+        $lookup: {
+          from: "users", 
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $project: {
+          question: 1,
+          options: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          votedUsers: 1,
+          "userId": 1 
+        }
+      }
+    ]);
   } catch (error) {
     throw new Error(`Error fetching polls from database: ${error.message}`);
   }
 };
+
 
 const findPoll = async (pollId) => {
   try {
@@ -36,7 +67,7 @@ const findPoll = async (pollId) => {
 
 const addVoteToPollInDatabase = async (pollId, optionId, userId) => {
   try {
-    console.log("hit controller", { pollId, optionId, userId });
+    // console.log("hit controller", { pollId, optionId, userId });
 
     const result = await PollModel.findOneAndUpdate(
       { _id: pollId },

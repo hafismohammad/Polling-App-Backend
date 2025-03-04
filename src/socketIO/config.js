@@ -12,8 +12,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CORS_ORGIN || 'http://localhost:5173'],
-    // origin: 'https://polling-app-frontend-plum.vercel.app',
+    // origin: [process.env.CORS_ORGIN || 'http://localhost:5173'],
+    origin: 'https://polling-app-frontend-plum.vercel.app',
     credentials: true,
   },
 });
@@ -45,9 +45,9 @@ io.on("connection", (socket) => {
   // });
   socket.on("removeVote", (pollData) => {
     // console.log('0000000000000')
-    console.log('removeVote----------', pollData)
+    // console.log('removeVote----------', pollData)
 
-    socket.emit("voteRemoved", pollData);
+    socket.broadcast.emit("voteRemoved", pollData);
   });
   
   socket.on("typing", (data) => {
