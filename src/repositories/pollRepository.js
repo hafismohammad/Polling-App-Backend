@@ -28,9 +28,7 @@ const fetchAllPollsFromDatabase = async () => {
 
 const findPoll = async (pollId) => {
   try {
-    console.log('pollid', pollId);
-    
-    return new mongoose.Types.ObjectId(pollId);
+    return await PollModel.findById(pollId)
   } catch (error) {
     throw new Error(`Error finding poll with ID ${pollId}: ${error.message}`);
   }
@@ -64,7 +62,8 @@ const addVoteToPollInDatabase = async (pollId, optionId, userId) => {
 
 const deletePollByIdInDatabase = async (pollId) => {
   try {
-    await PollModel.findOneAndDelete(pollId);
+
+    await PollModel.findOneAndDelete({ _id: pollId });
   } catch (error) {
     throw new Error(`Error deleting poll with ID ${pollId}: ${error.message}`);
   }
@@ -97,14 +96,14 @@ const updateAllVote = async (pollId, userId, optionId) => {
 
 const getVotedUsers = async (pollId) => {
   try {
-    const objectId = new mongoose.Types.ObjectId(pollId); // Ensure it's an ObjectId
+    const objectId = new mongoose.Types.ObjectId(pollId); 
 
     const response = await PollModel.aggregate([
-      { $match: { _id: objectId } }, // Ensure proper type match
+      { $match: { _id: objectId } }, 
       { $unwind: "$votedUsers" },
       {
         $lookup: {
-          from: "users", // Ensure the collection name matches your database
+          from: "users", 
           localField: "votedUsers.userId",
           foreignField: "_id",
           as: "userDetails"

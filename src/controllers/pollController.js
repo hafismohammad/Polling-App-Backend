@@ -44,7 +44,6 @@ const deletePoll = async (req, res, next) => {
   try {
     
     const { id } = req.params;
-    console.log('hit delete',id);
     await deletePollService(id);
     res.status(200).json({ status: 'success', message: "Poll deleted successfully" });
   } catch (error) {

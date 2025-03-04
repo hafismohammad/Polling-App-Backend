@@ -49,13 +49,10 @@ const addVoteService = async (pollId, optionId, userId) => {
   }
 };
 
-const deletePollService  = async (pollId, userId) => {
+const deletePollService  = async (pollId) => {
   try {
-    console.log('hit service', {pollId, userId});
     
     const poll = await findPoll(pollId);
-    console.log('poll:', poll);
-    
     if (!poll) {
       throw new Error("Poll not found");
     }
@@ -64,6 +61,7 @@ const deletePollService  = async (pollId, userId) => {
     throw new Error(`Error deleting poll: ${error.message}`);
   }
 };
+
 const removeVote = async (pollId, userId) => {
   try {
     const poll = await findPoll(pollId);

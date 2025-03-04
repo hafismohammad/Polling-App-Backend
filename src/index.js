@@ -15,8 +15,8 @@ dotenv.config()
 // console.log('process.env.CORS_ORGIN',process.env.CORS_ORGIN)
 connectDB()
 const corsOptions = {
-    // origin: process.env.CORS_ORGIN,
-    origin: 'https://polling-app-frontend-plum.vercel.app',
+    origin: process.env.CORS_ORGIN,
+    // origin: 'https://polling-app-frontend-plum.vercel.app',
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
